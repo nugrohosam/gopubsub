@@ -4,17 +4,33 @@ import (
     "context"
     "log"
     "time"
+    "fmt"
+    "flag"
 
     "github.com/aigent/nq"
 )
 
 func main() {
+	listenHost := flag.String("host", "none", "--")
+	listenPort := flag.String("port", "none", "--")
+	flag.Parse()
+
+    if *listenHost == "none" {
+        fmt.Println("flag [--host] not defined")
+        return
+    }
+    
+    if *listenPort == "none" {
+        fmt.Println("flag [--port] not defined")
+        return
+    }
+
     opts := nq.SubOpts{
         KeepaliveTimeout: 5 * time.Second,
         Printf:           log.Printf,
     }
-    sub := nq.NewSub("tcp4://:1234", opts, nq.NewDefaultMetrics())
 
+    sub := nq.NewSub("tcp4://"+*listenHost+":"+*listenPort, opts, nq.NewDefaultMetrics())
     go func() {
         buf := make([]byte, 4096)
         for {

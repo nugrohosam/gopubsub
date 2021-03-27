@@ -5,12 +5,28 @@ import (
     "log"
     "time"
     "strconv"
+    "flag"
 
     "github.com/aigent/nq"
 )
 
 func main() {
-        opts := nq.PubOpts{
+
+	listenHost := flag.String("host", "none", "--")
+	listenPort := flag.String("port", "none", "--")
+	flag.Parse()
+
+    if *listenHost == "none" {
+        fmt.Println("flag [--host] not defined")
+        return
+    }
+    
+    if *listenPort == "none" {
+        fmt.Println("flag [--port] not defined")
+        return
+    }
+
+    opts := nq.PubOpts{
         KeepaliveTimeout: 5 * time.Second,
         ConnectTimeout:   3 * time.Second,
         WriteTimeout:     3 * time.Second,
@@ -18,8 +34,7 @@ func main() {
         NoDelay:          true,
         Printf:           log.Printf,
     }
-    
-    pub := nq.NewPub("tcp4://localhost:1234", opts, nq.NewDefaultMetrics())
+    pub := nq.NewPub("tcp4://"+*listenHost+":"+*listenPort, opts, nq.NewDefaultMetrics())
     for {
         // Publish the message using 100 connections
         for i := 1; i <= 100; i++ {
